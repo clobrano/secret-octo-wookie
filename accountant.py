@@ -8,6 +8,7 @@ import pprint
 from time import strftime
 from time import strptime
 from docopt import docopt
+import jinja2
 
 # Get Configuratino values
 args = docopt (__doc__, version="Accountant v1.0")
@@ -84,10 +85,10 @@ def add_entry_to_report (entry, report = {}):
 
     report [entry.category] += entry.amount
 
-    if not entry.outcome:
-        report ['_incomes'] += entry.amount
-    else:
+    if entry.outcome:
         report ['_outcomes'] += entry.amount
+    else:
+        report ['_incomes'] += entry.amount
 
     return report
 
@@ -95,7 +96,8 @@ def add_entry_to_report (entry, report = {}):
 def report_month (year, month, entries = []):
     if 0 == len (entries):
         return {}
-    report = {'_incomes':0.0, '_outcomes':0.0}
+    biggest_expense_amount = 0.0
+    report = {'_incomes':0.0, '_outcomes':0.0, '_biggest_expense': None}
 
     for entry in entries:
         if type (entry) is str:
@@ -103,6 +105,9 @@ def report_month (year, month, entries = []):
         entryd = EntryDrive (entry)
 
         if year == entryd.date.tm_year and month == entryd.date.tm_mon:
+            if entryd.outcome and entryd.category != 'Rent' and abs (entryd.amount) > biggest_expense_amount:
+                report ['_biggest_expense'] = entryd
+                biggest_expense_amount = abs (entryd.amount)
             report = add_entry_to_report (report = report, entry = entryd)
     return report
 
@@ -139,20 +144,40 @@ def diff (report1 = {}, report2 = {}):
 
     for cat in categories:
         if cat in report1.keys () and cat in report2.keys ():
-            try:
-                report_diff [cat] = '%0.2f' % (100.0 * ((report1 [cat] - report2 [cat]) / report1 [cat]))
-            except ZeroDivisionError:
-                report_diff [cat] = '100.0'
+           expense1 = abs (report1 [cat])
+           expense2 = abs (report2 [cat])
+           if expense1 > expense2:
+               report_diff [cat] = '+%0.2f%s' % ((100.0 * (expense1 - expense2) / expense1), '%')
+           elif expense1 < expense2:
+               report_diff [cat] = '%0.2f%s' % ((100.0 * (expense1 - expense2) / expense2), '%')
+           else:
+               report_diff [cat] = '0.0%s' % ('%')
 
         elif cat in report1.keys ():
-            report_diff [cat] = '100.0'
+            if report1 [cat] > 0:
+                report_diff [cat] = '+100.0%'
         else:
-            report_diff [cat] = '-100.0'
+            if report2 [cat] > 0:
+                report_diff [cat] = '-100.0%'
 
     return report_diff
 
+
+def report_print (report = {}, category = None):
+    printer = pprint.PrettyPrinter (indent = 4)
+    printer.pprint (report)
+
+
+def report_render (report = {}, title = 'Report'):
+    templateLoader = jinja2.FileSystemLoader (searchpath = '/')
+    templateEnv = jinja2.Environment (loader=templateLoader)
+    template = templateEnv.get_template ('/home/carlo/workspace/secret-octo-wookie/report.jinja2')
+    templateVars = { 'title' : title, 'report' : report }
+    outputText = template.render (templateVars)
+
+    return outputText
+
 def main (entries):
-    pp = pprint.PrettyPrinter (indent = 4)
     if args ['--report'] is not None:
         date = args ['--report']
         print ('Report %s' % date)
@@ -163,7 +188,12 @@ def main (entries):
             year = int (date)
             report = report_year (year, entries)
 
-        pp.pprint (report)
+        report_print (report)
+        html = report_render (report, 'Report %s' % date)
+        print html
+        file = open ('%s.html' % date, 'w')
+        file.write (html)
+        file.close ()
 
     if args ['--diff']:
         date1 = args ['DATE1']
@@ -185,7 +215,7 @@ def main (entries):
 
         diff_report = diff (report1, report2)
 
-        pp.pprint (diff_report)
+        report_print (diff_report)
 
 
 if __name__ == '__main__':
