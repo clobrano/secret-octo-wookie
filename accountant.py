@@ -3,6 +3,7 @@
 Usage:
     ./accountant.py  [--report=DATE] [--diff] [DATE1] [DATE2] [--date-format=DATE_FMT] [--debug]
 '''
+
 import sys
 import os
 import jinja2
@@ -33,7 +34,7 @@ class EntryDrive (object):
     def __init__ (self, entry = []):
         self.outcome = (entry [OUTCOME_POS] == 'Outcome')
         self.date    = self.get_date (entry)
-        self.date_str = strftime ('%d/%m/%Y', self.date)
+        self.date_str = strftime (date_format, self.date)
         self.amount  = self._parse_amount (entry [AMOUNT_POS])
         self.category = entry [CAT_POS].rstrip ()
         self.comment  = entry [COMMENT_POS].rstrip ()
@@ -189,7 +190,6 @@ def report_render (report = {}, title = 'Report'):
     cwd = os.getcwd()
     template = templateEnv.get_template (os.path.join (cwd, 'report_template.html'))
     templateVars = { 'title' : title, 'report' : report }
-    templateEnv.filters ['datetime'] = format_datetime
     outputText = template.render (templateVars)
 
     return outputText
