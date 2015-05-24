@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>{{ title }}</title>
+<link rel="stylesheet" type="text/css" href="css/styles.css" />
+</head>
+<body>
+    <div id=containter>
+        <div class="box" id=incomes>
+            <table summary="Incomes">
+                <caption>Incomes: {{report ['_tot_incomes']}}</caption>
+                <thead>
+                    <tr>
+                        <th scope="col" abbr="Amount">Amount</th>
+                        <th scope="col" abbr="Category">Category</th>
+                        <th scope="col" abbr="Description">Description</th>
+                        <th scope="col" abbr="Date">Date</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th scope="col" abbr="Summary">{{ report ['_tot_incomes'] }}</th>
+                        <th scope="col" abbr="Summary"></th>
+                        <th scope="col" abbr="Summary"></th>
+                        <th scope="col" abbr="Summary"></th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    {% for item in report ['_incomes'] %}
+                    <tr>
+                        <td>{{ item.amount }}</td>
+                        <td>{{ item.category }}</td>
+                        <td>{{ item.comment }}</td>
+                        <td>{{ item.date_str }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="box" id=outcomes>
+            <table summary="Outcomes">
+                <caption>Outcomes: {{report ['_tot_outcomes']}}</caption>
+                <thead>
+                    <tr>
+                        <th scope="col" abbr="Amount">Amount</th>
+                        <th scope="col" abbr="Category">Category</th>
+                        <th scope="col" abbr="Description">Description</th>
+                        <th scope="col" abbr="Date">Date</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th scope="col" abbr="Summary">{{ report ['_tot_outcomes'] }}</th>
+                        <th scope="col" abbr="Summary"></th>
+                        <th scope="col" abbr="Summary"></th>
+                        <th scope="col" abbr="Summary"></th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    {% for item in report ['_outcomes'] %}
+                    <tr>
+                        <td>{{ item.amount }}</td>
+                        <td>{{ item.category }}</td>
+                        <td>{{ item.comment }}</td>
+                        <td>{{ item.date_str }} </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="box" id=categories>
+            <table summary="Categories">
+                <caption>Expensed by category</caption>
+                <thead>
+                    <tr>
+                        <th scope="col" abbr="Category">Category</th>
+                        <th scope="col" abbr="Amount">Amount</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th scope="col" abbr="Summary"></th>
+                        <th scope="col" abbr="Summary"></th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    {% for category in report ['_categories'].keys () %}
+                    <tr>
+                        <td>{{ category }}</td>
+                        <td>{{ report ['_categories'][category] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>    </div>
+</body>
+</html>

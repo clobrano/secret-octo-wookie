@@ -4,11 +4,12 @@ Usage:
     ./accountant.py  [--report=DATE] [--diff] [DATE1] [DATE2] [--date-format=DATE_FMT] [--debug]
 '''
 import sys
+import os
+import jinja2
 import pprint
 from time import strftime
 from time import strptime
 from docopt import docopt
-import jinja2
 
 # Get Configuratino values
 args = docopt (__doc__, version="Accountant v1.0")
@@ -32,6 +33,7 @@ class EntryDrive (object):
     def __init__ (self, entry = []):
         self.outcome = (entry [OUTCOME_POS] == 'Outcome')
         self.date    = self.get_date (entry)
+        self.date_str = strftime ('%d/%m/%Y', self.date)
         self.amount  = self._parse_amount (entry [AMOUNT_POS])
         self.category = entry [CAT_POS].rstrip ()
         self.comment  = entry [COMMENT_POS].rstrip ()
@@ -80,15 +82,23 @@ def select_entries (entry, month, year):
     return None
 
 def add_entry_to_report (entry, report = {}):
-    if entry.category not in report.keys():
-        report [entry.category] = 0
+    if '_categories' not in report.keys():
+        report ['_categories'] = {}
 
-    report [entry.category] += entry.amount
+    if entry.category not in report ['_categories'].keys():
+        report ['_categories'] [entry.category] = 0
 
     if entry.outcome:
-        report ['_outcomes'] += entry.amount
+        report ['_outcomes'].append (entry)
     else:
-        report ['_incomes'] += entry.amount
+        report ['_incomes'].append (entry)
+
+    report ['_categories'] [entry.category] += entry.amount
+
+    if entry.outcome:
+        report ['_tot_outcomes'] += entry.amount
+    else:
+        report ['_tot_incomes'] += entry.amount
 
     return report
 
@@ -97,7 +107,12 @@ def report_month (year, month, entries = []):
     if 0 == len (entries):
         return {}
     biggest_expense_amount = 0.0
-    report = {'_incomes':0.0, '_outcomes':0.0, '_biggest_expense': None}
+    report = {
+            '_outcomes': [],
+            '_incomes': [],
+            '_tot_incomes':0.0,
+            '_tot_outcomes':0.0,
+            '_biggest_expense': None}
 
     for entry in entries:
         if type (entry) is str:
@@ -138,14 +153,14 @@ def report_year (year, entries = []):
 
 def diff (report1 = {}, report2 = {}):
     report_diff = {}
-    categories = report1.keys ()
-    categories.extend (report2.keys ())
+    categories = report1 ['_categories'].keys ()
+    categories.extend (report2 ['_categories'].keys ())
     categories = set (categories)
 
     for cat in categories:
-        if cat in report1.keys () and cat in report2.keys ():
-           expense1 = abs (report1 [cat])
-           expense2 = abs (report2 [cat])
+        if cat in report1 ['_categories'].keys () and cat in report2 ['_categories'].keys ():
+           expense1 = abs (report1 ['_categories'] [cat])
+           expense2 = abs (report2 ['_categories'] [cat])
            if expense1 > expense2:
                report_diff [cat] = '+%0.2f%s' % ((100.0 * (expense1 - expense2) / expense1), '%')
            elif expense1 < expense2:
@@ -153,11 +168,11 @@ def diff (report1 = {}, report2 = {}):
            else:
                report_diff [cat] = '0.0%s' % ('%')
 
-        elif cat in report1.keys ():
-            if report1 [cat] > 0:
+        elif cat in report1 ['_categories'].keys ():
+            if report1 ['_categories'] [cat] > 0:
                 report_diff [cat] = '+100.0%'
         else:
-            if report2 [cat] > 0:
+            if report2 ['_categories'] [cat] > 0:
                 report_diff [cat] = '-100.0%'
 
     return report_diff
@@ -171,11 +186,14 @@ def report_print (report = {}, category = None):
 def report_render (report = {}, title = 'Report'):
     templateLoader = jinja2.FileSystemLoader (searchpath = '/')
     templateEnv = jinja2.Environment (loader=templateLoader)
-    template = templateEnv.get_template ('/home/carlo/workspace/secret-octo-wookie/report.jinja2')
+    cwd = os.getcwd()
+    template = templateEnv.get_template (os.path.join (cwd, 'report_template.html'))
     templateVars = { 'title' : title, 'report' : report }
+    templateEnv.filters ['datetime'] = format_datetime
     outputText = template.render (templateVars)
 
     return outputText
+
 
 def main (entries):
     if args ['--report'] is not None:
@@ -190,7 +208,6 @@ def main (entries):
 
         report_print (report)
         html = report_render (report, 'Report %s' % date)
-        print html
         file = open ('%s.html' % date, 'w')
         file.write (html)
         file.close ()

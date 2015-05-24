@@ -1,0 +1,48 @@
+/* general styles */
+body {
+    padding: 0;
+    margin: 0;
+    background: #fff;
+    font: normal 15px Verdana, Arial, Helvetica, sans-serif;
+    color: #000;
+}
+
+#container {width:100%}
+#containter .box {
+    width:30%;
+    float:left;
+}
+
+/* table styles */
+table {
+    width: 99%;
+    padding: 0;
+    margin: 0;
+    border-collapse: collapse;
+}
+caption {
+    width: 90%;
+    padding: 10px 0 5px 0;
+    text-align: center;
+    color: #808080;
+    font: bold 20px Verdana, Arial, Helvetica, sans-serif;
+}
+th {
+    padding: 10px 15px 10px 15px;
+    background: #e8f2e1;
+    font: normal 11px Verdana, Arial, Helvetica, sans-serif;
+    text-align: center;
+    color: #3a5926;
+    border: 1px solid #93c473;
+}
+thead th, tfoot th {
+    background: #c6deb6 url("../images/bg.png") left top repeat-x;
+    font: bold 14px Verdana, Arial, Helvetica, sans-serif;
+}
+td {
+    padding: 0px 7px 0px 7px;
+    border: 0.5px solid #93c473;
+}
+
+
+
