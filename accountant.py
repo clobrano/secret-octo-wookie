@@ -195,18 +195,46 @@ def report_render (report = {}, title = 'Report'):
     return outputText
 
 
+def make_report (date = ""):
+    print ('Report %s' % date)
+    if '-' in date:
+        year, month = date.split ('-')
+        report = report_month (int (year), int (month), entries)
+    else:
+        year = int (date)
+        report = report_year (year, entries)
+
+    return report;
+
+def make_report_diff (date1 = "", date2 = ""):
+    print ('Diff %s vs %s' % (date1, date2))
+
+    if '-' in date1:
+        year1, month1 = date1.split('-')
+        report1 = report_month (int (year1), int (month1), entries)
+    else:
+        year1 = date1
+        report1 = report_year (int (year1), entries)
+
+    if '-' in date2:
+        year2, month2 = date2.split('-')
+        report2 = report_month (int (year2), int (month2), entries)
+    else:
+        year2 = date2
+        report2 = report_year (int (year2), entries)
+
+    diff_report = diff (report1, report2)
+
+    return diff_report
+
+
 def main (entries):
     if args ['--report'] is not None:
         date = args ['--report']
-        print ('Report %s' % date)
-        if '-' in date:
-            year, month = date.split ('-')
-            report = report_month (int (year), int (month), entries)
-        else:
-            year = int (date)
-            report = report_year (year, entries)
+        report = make_report (date)
 
         report_print (report)
+
         html = report_render (report, 'Report %s' % date)
         file = open ('%s.html' % date, 'w')
         file.write (html)
@@ -215,22 +243,7 @@ def main (entries):
     if args ['--diff']:
         date1 = args ['DATE1']
         date2 = args ['DATE2']
-        print ('Diff %s vs %s' % (date1, date2))
-        if '-' in date1:
-            year1, month1 = date1.split('-')
-            report1 = report_month (int (year1), int (month1), entries)
-        else:
-            year1 = date1
-            report1 = report_year (int (year1), entries)
-
-        if '-' in date2:
-            year2, month2 = date2.split('-')
-            report2 = report_month (int (year2), int (month2), entries)
-        else:
-            year2 = date2
-            report2 = report_year (int (year2), entries)
-
-        diff_report = diff (report1, report2)
+        diff_report = make_report_diff (date1, date2)
 
         report_print (diff_report)
 
