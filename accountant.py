@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 '''
 Usage:
-    ./accountant.py  [--report=DATE] [--diff] [DATE1] [DATE2] [--date-format=DATE_FMT] [--debug]
+    ./accountant.py [--report=DATE] [--diff] [DATE1] [DATE2] [--date-format=DATE_FMT] [--debug] [--dest=DIR]
 '''
 
 import sys
@@ -61,7 +61,7 @@ class EntryDrive (object):
         else:
             amount = self.amount
         return '%s, %0.2f, %s - %s' % \
-                (strftime('%Y-%m-%d', self.date), amount, self.category, self.comment)
+                (self.date_str, amount, self.category, self.comment)
 
 
 def logd (msg):
@@ -104,54 +104,6 @@ def add_entry_to_report (entry, report = {}):
     return report
 
 
-def report_month (year, month, entries = []):
-    if 0 == len (entries):
-        return {}
-    biggest_expense_amount = 0.0
-    report = {
-            '_outcomes': [],
-            '_incomes': [],
-            '_tot_incomes':0.0,
-            '_tot_outcomes':0.0,
-            '_biggest_expense': None}
-
-    for entry in entries:
-        if type (entry) is str:
-            entry = entry.split (',')
-        entryd = EntryDrive (entry)
-
-        if year == entryd.date.tm_year and month == entryd.date.tm_mon:
-            if entryd.outcome and entryd.category != 'Rent' and abs (entryd.amount) > biggest_expense_amount:
-                report ['_biggest_expense'] = entryd
-                biggest_expense_amount = abs (entryd.amount)
-            report = add_entry_to_report (report = report, entry = entryd)
-    return report
-
-
-def report_year (year, entries = []):
-    if 0 == len (entries):
-        return {}
-    report = {'_incomes':0.0, '_outcomes':0.0}
-    for row in entries:
-        logd (row)
-        logd ('type (row) is {0}'.format (type (row)))
-        if type (row) is str:
-            row = row.split (',')
-        entry = EntryDrive (row)
-
-        if year == entry.date.tm_year:
-            if entry.category not in report.keys():
-                report [entry.category] = 0
-
-            report [entry.category] += entry.amount
-
-            if not entry.outcome:
-                report ['_incomes'] += entry.amount
-            else:
-                report ['_outcomes'] += entry.amount
-
-    return report
-
 def diff (report1 = {}, report2 = {}):
     report_diff = {}
     categories = report1 ['_categories'].keys ()
@@ -184,66 +136,109 @@ def report_print (report = {}, category = None):
     printer.pprint (report)
 
 
-def report_render (report = {}, title = 'Report'):
+def report_render (report = {}, diff_mon = {}, diff_year = {}, categories = [], title = 'Report'):
+    cwd = os.getcwd()
     templateLoader = jinja2.FileSystemLoader (searchpath = '/')
     templateEnv = jinja2.Environment (loader=templateLoader)
-    cwd = os.getcwd()
     template = templateEnv.get_template (os.path.join (cwd, 'report_template.html'))
-    templateVars = { 'title' : title, 'report' : report }
+    template = templateEnv.get_template (os.path.join (cwd, 'report_template.html'))
+    templateVars = { 'title' : title, 'report' : report, 'diff_mon' : diff_mon, 'diff_year' : diff_year, 'categories' : categories}
     outputText = template.render (templateVars)
-
     return outputText
 
+def make_report (year, month=None, entries = []):
+    if 0 == len (entries):
+        return {}
 
-def make_report (date = ""):
-    print ('Report %s' % date)
-    if '-' in date:
-        year, month = date.split ('-')
-        report = report_month (int (year), int (month), entries)
-    else:
-        year = int (date)
-        report = report_year (year, entries)
+    biggest_expense_amount = 0.0
+    report = {
+            '_categories' : {},
+            '_outcomes': [],
+            '_incomes': [],
+            '_tot_incomes':0.0,
+            '_tot_outcomes':0.0,
+            '_biggest_expense': None}
+
+    for entry in entries:
+        try:
+            if year == entry.date.tm_year and (None == month or month == entry.date.tm_mon):
+                if entry.outcome and entry.category != 'Rent' and abs (entry.amount) > biggest_expense_amount:
+                    report ['_biggest_expense'] = entry
+                    biggest_expense_amount = abs (entry.amount)
+
+                report = add_entry_to_report (report = report, entry = entry)
+        except AttributeError as er:
+            print (entry)
+            raise AttributeError
 
     return report;
 
-def make_report_diff (date1 = "", date2 = ""):
-    print ('Diff %s vs %s' % (date1, date2))
 
-    if '-' in date1:
-        year1, month1 = date1.split('-')
-        report1 = report_month (int (year1), int (month1), entries)
-    else:
-        year1 = date1
-        report1 = report_year (int (year1), entries)
-
-    if '-' in date2:
-        year2, month2 = date2.split('-')
-        report2 = report_month (int (year2), int (month2), entries)
-    else:
-        year2 = date2
-        report2 = report_year (int (year2), entries)
+def make_report_diff (entries, year1, year2, month1=None, month2=None):
+    report1 = make_report (year1, month1, entries)
+    report2 = make_report (year2, month2, entries)
 
     diff_report = diff (report1, report2)
 
     return diff_report
 
 
+def parse_date (date):
+    year  = None
+    month = None
+
+    if '-' in date:
+        year, month = date.split ('-')
+        month = int (month)
+    else:
+        year = date
+
+    year = int (year)
+
+    return year, month
+
+
 def main (entries):
+    entryObjs = []
+    categories = set ()
+    for entry in entries:
+        if type (entry) is str:
+            entry = entry.split (',')
+        entryObj = EntryDrive (entry)
+        categories.add (entryObj.category)
+        entryObjs.append (entryObj)
+
+    categories = list (categories)
+    categories.sort ()
+
     if args ['--report'] is not None:
+        print ('Report %s' % (args ['--report']))
+
         date = args ['--report']
-        report = make_report (date)
+        year, month = parse_date (date)
 
-        report_print (report)
+        report = make_report (year=year, month=month, entries=entryObjs)
+        diff_mon = make_report_diff (entries=entryObjs, year1=year, year2=year, month1=month, month2=month-1)
+        diff_year = make_report_diff (entries=entryObjs, year1=year, year2=year-1, month1=month, month2=month)
 
-        html = report_render (report, 'Report %s' % date)
-        file = open ('%s.html' % date, 'w')
+        html = report_render (report, diff_mon, diff_year, categories, 'Report %s' % date)
+
+        if args ['--dest']:
+            output_filepath = os.path.join (args ['--dest'], '%s.html' % date)
+        else:
+            cwd = os.getcwd()
+            output_filepath = os.path.join (cwd, '%s.html' % date)
+
+        file = open (output_filepath, 'w')
         file.write (html)
         file.close ()
 
     if args ['--diff']:
-        date1 = args ['DATE1']
-        date2 = args ['DATE2']
-        diff_report = make_report_diff (date1, date2)
+        print ('Report %s v.s. %s' % (args ['DATE1'], args ['DATE2']))
+        year1, month1 = parse_date (args ['DATE1'])
+        year2, month2 = parse_date (args ['DATE2'])
+
+        diff_report = make_report_diff (entries, year1, year2, month1, month2)
 
         report_print (diff_report)
 

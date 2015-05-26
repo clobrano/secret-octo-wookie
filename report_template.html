@@ -51,10 +51,10 @@
                 </thead>
                 <tfoot>
                     <tr>
-                        <th scope="col" abbr="Summary">{{ report ['_tot_outcomes'] }}</th>
-                        <th scope="col" abbr="Summary"></th>
-                        <th scope="col" abbr="Summary"></th>
-                        <th scope="col" abbr="Summary"></th>
+                        <th scope="col" abbr="BiggestAmount">{{ report ['_biggest_expense'].amount }}</th>
+                        <th scope="col" abbr="Category">{{ report ['_biggest_expense'].category }}</th>
+                        <th scope="col" abbr="Description">Biggest montly expense</th>
+                        <th scope="col" abbr="Date">{{ report ['_biggest_expense'].date_str }}</th>
                     </tr>
                 </tfoot>
                 <tbody>
@@ -76,19 +76,25 @@
                     <tr>
                         <th scope="col" abbr="Category">Category</th>
                         <th scope="col" abbr="Amount">Amount</th>
+                        <th scope="col" abbr="Variation">Montly variation</th>
+                        <th scope="col" abbr="Variation">Year variation</th>
                     </tr>
                 </thead>
                 <tfoot>
                     <tr>
-                        <th scope="col" abbr="Summary"></th>
-                        <th scope="col" abbr="Summary"></th>
+                        <th scope="col" abbr=""></th>
+                        <th scope="col" abbr=""></th>
+                        <th scope="col" abbr=""></th>
+                        <th scope="col" abbr=""></th>
                     </tr>
                 </tfoot>
                 <tbody>
-                    {% for category in report ['_categories'].keys () %}
+                    {% for category in categories %}
                     <tr>
                         <td>{{ category }}</td>
                         <td>{{ report ['_categories'][category] }}</td>
+                        <td>{{ diff_mon [category] }}</td>
+                        <td>{{ diff_year [category] }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
