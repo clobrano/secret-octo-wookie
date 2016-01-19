@@ -141,7 +141,6 @@ def report_render (report = {}, diff_mon = {}, diff_year = {}, categories = [], 
     templateLoader = jinja2.FileSystemLoader (searchpath = '/')
     templateEnv = jinja2.Environment (loader=templateLoader)
     template = templateEnv.get_template (os.path.join (cwd, 'report_template.html'))
-    template = templateEnv.get_template (os.path.join (cwd, 'report_template.html'))
     templateVars = { 'title' : title, 'report' : report, 'diff_mon' : diff_mon, 'diff_year' : diff_year, 'categories' : categories}
     outputText = template.render (templateVars)
     return outputText
