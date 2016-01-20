@@ -59,14 +59,14 @@
 
                 {%if income > outcome %}
                 <div class="progress">
-                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{(income - outcome)/income}}" aria-valuemin="0" aria-valuemax="{{income}}" style="max-width: 100%; min-width: 20%; width: {{(income - outcome)/income}}%;">
+                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{(income - outcome)/income * 100}}" aria-valuemin="0" aria-valuemax="100" style="max-width: 100%; min-width: 20%; width: {{(income - outcome)/income * 100}}%;">
                         <i class="glyphicon-euro glyphicon glyphicon-eur"></i> {{"%0.2f"|format(income - outcome)}} saved
                     </div>
                 </div>
                 {% elif income == outcomes %}
                 {% else %}
                 <div class="progress">
-                    <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="{{(outcome - income)/income}}" aria-valuemin="0" aria-valuemax="{{income}}" style="max-width: 100%; min-width: 20%; width: {{(income - outcome)/income}}%;">
+                    <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="{{(outcome - income)/income * 100}}" aria-valuemin="0" aria-valuemax="100" style="max-width: 100%; min-width: 20%; width: {{(outcome - income)/income * 100}}%;">
                     <i class="glyphicon-euro glyphicon glyphicon-eur"></i> {{"%0.2f"|format(income - outcome)}} euros lost
                     </div>
                 </div>
