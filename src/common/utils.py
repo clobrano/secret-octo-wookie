@@ -1,4 +1,3 @@
-import os
 import json
 from src.models.entries.entry import Entry
 from src.models.categories.category import Category
@@ -68,3 +67,20 @@ def parse_cvs(cvs_fullpath,
         entries.append(entry)
 
     return entries
+
+
+def update_database(cvs_filename,
+                    json_datafile,
+                    amount_col,
+                    description_col,
+                    date_col,
+                    outcome_col,
+                    category_col):
+    entries = parse_cvs(cvs_filename,
+                        amount_col,
+                        description_col,
+                        date_col,
+                        outcome_col,
+                        category_col)
+
+    update_json(json_datafile, entries)
