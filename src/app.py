@@ -20,8 +20,11 @@ for e in entries:
 
 months = sorted(list(months), reverse=True)
 
+@app.route("/")
+def index():
+    return render_template('index.html')
 
-@app.route("/report/<string:year>/<string:month>")
+@app.route("/report/<string:year>/<string:month>", methods=['GET'])
 def monthly_report(year, month):
     year = int(year)
     month = int(month)
@@ -36,6 +39,11 @@ def monthly_report(year, month):
         data['months'] = months
         return render_template('report.html', **data)
     except EmptyReportException:
-        return "No data for %02d/%04d" % (month, year)
+        return render_template('report.html',
+                               year=year,
+                               month=month,
+                               error=True,
+                               error_message="No data for %02d/%04d" %
+                               (month, year) )
 
 
