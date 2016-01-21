@@ -2,8 +2,6 @@ from flask import Flask
 from flask import render_template
 from src.models.reports.report import Report
 from src.models.reports.errors import EmptyReportException
-from src.common.utils import parse_cvs
-from src.common.utils import update_json
 from src.common.utils import get_entries
 
 
@@ -13,16 +11,24 @@ app = Flask(__name__)
 app.secret_key = '123'
 entries = get_entries(datafile)
 
-months = set()
+years = set()
+dates = set()
 for e in entries:
     tmp_date = "%04d/%02d" % (e.date.tm_year, e.date.tm_mon)
-    months.add(tmp_date)
+    years.add(e.date.tm_year)
+    dates.add(tmp_date)
 
-months = sorted(list(months), reverse=True)
+years = sorted(list(years), reverse=True)
+dates = sorted(list(dates), reverse=True)
 
-@app.route("/")
+year_reports = [Report(year=year, entries=entries).json() for year in years]
+
+
+@app.route("/report")
 def index():
-    return render_template('index.html')
+    return render_template('index.html', years=list(years),
+                           reports=year_reports)
+
 
 @app.route("/report/<string:year>/<string:month>", methods=['GET'])
 def monthly_report(year, month):
@@ -36,7 +42,7 @@ def monthly_report(year, month):
             ref = Report(year=int(year)-1, month=12, entries=entries)
         report.compare_categories(ref)
         data = report.json()
-        data['months'] = months
+        data['dates'] = dates
         return render_template('report.html', **data)
     except EmptyReportException:
         return render_template('report.html',
@@ -44,6 +50,4 @@ def monthly_report(year, month):
                                month=month,
                                error=True,
                                error_message="No data for %02d/%04d" %
-                               (month, year) )
-
-
+                               (month, year))

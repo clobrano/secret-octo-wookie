@@ -14,12 +14,12 @@ glyphicon glyphicon-arrow-left"></i></a></li>
 {% endif %}
 
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{year}}/{{"%02d"|format(month)}}<span class="caret"></span></a>
-      <ul class="dropdown-menu scrollable-menu">
-          {% for month in months %}
-          <li><a href="/report/{{month}}">{{month}}</a></li>
-          {% endfor %}
-      </ul>
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{year}}/{{"%02d"|format(month)}}<span class="caret"></span></a>
+    <ul class="dropdown-menu scrollable-menu">
+        {% for date in dates %}
+        <li><a href="/report/{{date}}">{{date}}</a></li>
+        {% endfor %}
+    </ul>
 </li>
 
 {% if month < 12 %}
@@ -35,11 +35,11 @@ glyphicon glyphicon-arrow-right"></i></a></li>
 <div class="container">
     {% if not error %}
     <div class="panel panel-default">
-       <div class="panel-body">
+        <div class="panel-body">
             {% if month %}
-                <h1>Report {{year}}/{{"%02d"|format(month)}}</h1>
+            <h1>Report {{year}}/{{"%02d"|format(month)}}</h1>
             {% else %}
-                <h1>Report {{year}}</h1>
+            <h1>Report {{year}}</h1>
             {% endif %}
 
             <h3><span class="label label-info">Income</span> {{"%0.2f"|format(income)}}</h3>
@@ -49,121 +49,121 @@ glyphicon glyphicon-arrow-right"></i></a></li>
 
             <div class="progress">
                 <div class="progress-bar progress-bar-success" style="max-width: 100%; min-witdh: 10%; width: {{income / (income + outcome) * 100 }}%">
-                  {% if income >= outcome %}
-                  <i class="glyphicon-euro glyphicon glyphicon-eur"></i> {{"%0.2f"|format(income - outcome)}} saved
-                  {% endif %}
+                    {% if income >= outcome %}
+                    <i class="glyphicon-euro glyphicon glyphicon-eur"></i> {{"%0.2f"|format(income - outcome)}} saved
+                    {% endif %}
                 </div>
                 <div class="progress-bar progress-bar-danger" style="max-width: 100%; min-witdh: 10%; width: {{outcome / (income + outcome) * 100 }}%">
-                  {% if income < outcome %}
-                  <i class="glyphicon-euro glyphicon glyphicon-eur"></i> {{"%0.2f"|format(income - outcome)}} lost
-                  {% endif %}
+                    {% if income < outcome %}
+                    <i class="glyphicon-euro glyphicon glyphicon-eur"></i> {{"%0.2f"|format(income - outcome)}} lost
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 
     <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-      <div class="panel panel-default">
-        <div class="panel-heading" role="tab" id="headingIncome">
-          <h2 class="panel-title">
-            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseIncome" aria-expanded="true" aria-controls="collapseIncome">
-              Incomes
-            </a>
-          </h2>
-        </div>
-        <div id="collapseIncome" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingIncome">
-            <div class="panel-body">
-                <table class="table table-hover">
-                    <tr>
-                        <th class="active">Date</th>
-                        <th class="active">Amount</th>
-                        <th class="active">Category</th>
-                        <th class="active">Description</th>
-                    </tr>
-                    {% for entry in incomes %}
-                    <tr>
-                        <td>{{entry.date}}</td>
-                        <td>{{entry.amount}}</td>
-                        <td>{{entry.category}}</td>
-                        <td>{{entry.description}}</td>
-                    </tr>
-                    {% endfor %}
-                </table>
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingIncome">
+                <h2 class="panel-title">
+                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseIncome" aria-expanded="true" aria-controls="collapseIncome">
+                        Incomes
+                    </a>
+                </h2>
+            </div>
+            <div id="collapseIncome" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingIncome">
+                <div class="panel-body">
+                    <table class="table table-hover">
+                        <tr>
+                            <th class="active">Date</th>
+                            <th class="active">Amount</th>
+                            <th class="active">Category</th>
+                            <th class="active">Description</th>
+                        </tr>
+                        {% for entry in incomes %}
+                        <tr>
+                            <td>{{entry.date}}</td>
+                            <td>{{"%0.2f"|format(entry.amount)}}</td>
+                            <td>{{entry.category}}</td>
+                            <td>{{entry.description}}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="panel panel-default">
-      <div class="panel-heading" role="tab" id="headingOutcome">
-        <h2 class="panel-title">
-          <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOutcome" aria-expanded="false" aria-controls="collapseOutcome">
-            Outcomes
-          </a>
-        </h2>
-      </div>
-      <div id="collapseOutcome" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOutcome">
-          <div class="panel-body">
-              <table class="table table-hover">
-                  <tr>
-                      <th class="active">Date</th>
-                      <th class="active">Amount</th>
-                      <th class="active">Category</th>
-                      <th class="active">Description</th>
-                  </tr>
-                  {% for entry in outcomes %}
-                  <tr>
-                      <td>{{entry.date}}</td>
-                      <td>{{entry.amount}}</td>
-                      <td>{{entry.category}}</td>
-                      <td>{{entry.description}}</td>
-                  </tr>
-                  {% endfor %}
-              </table>
-          </div>
-      </div>
-    </div>
-    <div class="panel panel-default">
-      <div class="panel-heading" role="tab" id="headingCategories">
-        <h2 class="panel-title">
-          <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseCategories" aria-expanded="false" aria-controls="collapseCategories">
-            Categories
-          </a>
-        </h2>
-      </div>
-      <div id="collapseCategories" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingCategories">
-          <div class="panel-body">
-                <table class="table table-hover">
-                <tr>
-                    <th class="active">Category</th>
-                    <th class="active">Amount</th>
-                    <th class="active">Montly var.</th>
-                </tr>
-                {% for cat in categories %}
-                <tr>
-                    <td>{{cat.name}}</td>
-                    <td>{{cat.amount}}</td>
-                    <td>
-                        {%if cat.variation < 0 %}
-                        <div class="progress">
-                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{cat.variation * -1}}" aria-valuemin="0" aria-valuemax="100" style="max-width: 100%; min-width: 20%; width: {{cat.variation * -1}}%;">
-                            -{{cat.variation * -1}}%
-                            </div>
-                        </div>
-                        {% elif cat.variation > 0 %}
-                        <div class="progress">
-                            <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="{{cat.variation}}" aria-valuemin="0" aria-valuemax="100" style="max-width: 100%; min-width: 20%; width: {{cat.variation}}%;">
-                            +{{cat.variation}}%
-                            </div>
-                        </div>
-                        {% else %}
-                        <p>No variation</p>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </table>
-          </div>
-      </div>
-    </div>
-    {% endif %}
-</div><!-- /.container -->
-{% endblock %}
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingOutcome">
+                <h2 class="panel-title">
+                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOutcome" aria-expanded="false" aria-controls="collapseOutcome">
+                        Outcomes
+                    </a>
+                </h2>
+            </div>
+            <div id="collapseOutcome" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOutcome">
+                <div class="panel-body">
+                    <table class="table table-hover">
+                        <tr>
+                            <th class="active">Date</th>
+                            <th class="active">Amount</th>
+                            <th class="active">Category</th>
+                            <th class="active">Description</th>
+                        </tr>
+                        {% for entry in outcomes %}
+                        <tr>
+                            <td>{{entry.date}}</td>
+                            <td>{{"%0.2f"|format(entry.amount)}}</td>
+                            <td>{{entry.category}}</td>
+                            <td>{{entry.description}}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingCategories">
+                <h2 class="panel-title">
+                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseCategories" aria-expanded="false" aria-controls="collapseCategories">
+                        Categories
+                    </a>
+                </h2>
+            </div>
+            <div id="collapseCategories" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingCategories">
+                <div class="panel-body">
+                    <table class="table table-hover">
+                        <tr>
+                            <th class="active">Category</th>
+                            <th class="active">Amount</th>
+                            <th class="active">Montly var.</th>
+                        </tr>
+                        {% for cat in categories %}
+                        <tr>
+                            <td>{{cat.name}}</td>
+                            <td>{{"%0.2f"|format(cat.amount)}}</td>
+                            <td>
+                                {%if cat.variation < 0 %}
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{cat.variation * -1}}" aria-valuemin="0" aria-valuemax="100" style="max-width: 100%; min-width: 20%; width: {{cat.variation * -1}}%;">
+                                        -{{cat.variation * -1}}%
+                                    </div>
+                                </div>
+                                {% elif cat.variation > 0 %}
+                                <div class="progress">
+                                    <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="{{cat.variation}}" aria-valuemin="0" aria-valuemax="100" style="max-width: 100%; min-width: 20%; width: {{cat.variation}}%;">
+                                        +{{cat.variation}}%
+                                    </div>
+                                </div>
+                                {% else %}
+                                <p>No variation</p>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div><!-- /.container -->
+    {% endblock %}
