@@ -42,7 +42,7 @@ def monthly_report(year, month):
             ref = Report(year=int(year)-1, month=12, entries=entries)
         report.compare_categories(ref)
         data = report.json()
-        data['dates'] = dates
+        data['dates'] = [date for date in dates if '%s' % year in date]
         return render_template('report.html', **data)
     except EmptyReportException:
         return render_template('report.html',
