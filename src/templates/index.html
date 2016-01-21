@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    {% for r in reports %}
+    <div class="media">
+        <div class="media-left">
+            <a href="/report/{{r.year}}/01">
+                <h2><span class="label label-default">{{r.year}}</span></h2>
+            </a>
+        </div>
+        <div class="media-body">
+            <h3><strong>Income:</strong> {{r.income}}</h3>
+            <h3><strong>Outcome:</strong> {{r.outcome}}</h3>
+            <p><strong>Biggest expense</strong> {{"%0.2f"|format(r.biggest_expense_amount)}} in {{r.biggest_expense_category}} the {{r.biggest_expense_date}}</p>
+
+            <div class="progress">
+                <div class="progress-bar progress-bar-success" style="max-width: 100%; min-witdh: 10%; width: {{r.income / (r.income + r.outcome) * 100 }}%">
+                    {% if r.income >= r.outcome %}
+                    <i class="glyphicon-euro glyphicon glyphicon-eur"></i> {{"%0.2f"|format(r.income - r.outcome)}} saved
+                    {% endif %}
+                </div>
+                <div class="progress-bar progress-bar-danger" style="max-width: 100%; min-witdh: 10%; width: {{r.outcome / (r.income + r.outcome) * 100 }}%">
+                    {% if r.income < r.outcome %}
+                    <i class="glyphicon-euro glyphicon glyphicon-eur"></i> {{"%0.2f"|format(r.income - r.outcome)}} lost
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
