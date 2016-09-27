@@ -49,9 +49,6 @@
 {% block content %}
 {% endblock %}
 
-{% block footer %}
-{% endblock %}
-
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
@@ -59,4 +56,12 @@
     <script>window.jQuery || document.write('<script src="js/vendor/jquery.min.js"><\/script>')</script>
     <script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
    </body>
+
+<footer>
+    <div class="container">
+        <p>PyAccountant Copyright (C) 2016, All Rights Reserved</p>
+    </div>
+</footer>
+
+
 </html>

@@ -51,3 +51,6 @@ def monthly_report(year, month):
                                error=True,
                                error_message="No data for %02d/%04d" %
                                (month, year))
+
+if __name__ == '__main__':
+    app.run()

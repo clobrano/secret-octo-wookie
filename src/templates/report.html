@@ -35,13 +35,14 @@ glyphicon glyphicon-arrow-right"></i></a></li>
 <div class="container">
     {% if not error %}
     <div class="panel panel-default">
-        <div class="panel-body">
+        <div class="panel-heading">
             {% if month %}
-            <h1>Report {{year}}/{{"%02d"|format(month)}}</h1>
+            <h2><strong>Report {{year}}/{{"%02d"|format(month)}}</strong></h2>
             {% else %}
-            <h1>Report {{year}}</h1>
+            <h2><strong>Report {{year}}</strong></h2>
             {% endif %}
-
+        </div>
+        <div class="panel-body">
             <h3><span class="label label-info">Income</span> {{"%0.2f"|format(income)}}</h3>
             <h3><span class="label label-danger">Outcome</span> {{"%0.2f"|format(outcome)}}</h3>
             <h4><span class="label label-default">Biggest expense</span> {{"%0.2f"|format(biggest_expense_amount)}} in {{biggest_expense_category}} the {{biggest_expense_date}}</h4>
@@ -67,7 +68,7 @@ glyphicon glyphicon-arrow-right"></i></a></li>
             <div class="panel-heading" role="tab" id="headingIncome">
                 <h2 class="panel-title">
                     <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseIncome" aria-expanded="true" aria-controls="collapseIncome">
-                        Incomes
+                        <strong>Incomes</strong>
                     </a>
                 </h2>
             </div>
@@ -96,7 +97,7 @@ glyphicon glyphicon-arrow-right"></i></a></li>
             <div class="panel-heading" role="tab" id="headingOutcome">
                 <h2 class="panel-title">
                     <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOutcome" aria-expanded="false" aria-controls="collapseOutcome">
-                        Outcomes
+                        <strong>Outcomes</strong>
                     </a>
                 </h2>
             </div>
@@ -125,7 +126,7 @@ glyphicon glyphicon-arrow-right"></i></a></li>
             <div class="panel-heading" role="tab" id="headingCategories">
                 <h2 class="panel-title">
                     <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseCategories" aria-expanded="false" aria-controls="collapseCategories">
-                        Categories
+                        <strong>Categories</strong>
                     </a>
                 </h2>
             </div>
@@ -133,7 +134,7 @@ glyphicon glyphicon-arrow-right"></i></a></li>
                 <div class="panel-body">
                     <table class="table table-hover">
                         <tr>
-                            <th class="active">Category</th>
+                            <th class="active">Name</th>
                             <th class="active">Amount</th>
                             <th class="active">Montly var.</th>
                         </tr>
@@ -164,6 +165,7 @@ glyphicon glyphicon-arrow-right"></i></a></li>
                 </div>
             </div>
         </div>
-        {% endif %}
-    </div><!-- /.container -->
-    {% endblock %}
+    </div>
+    {% endif %}
+</div><!-- /.container -->
+{% endblock %}
